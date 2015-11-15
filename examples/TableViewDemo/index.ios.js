@@ -110,6 +110,17 @@ class Example3 extends React.Component {
     }
 }
 
+var items = (   <Section canMove={true} canEdit={true}>
+                    <Item canEdit={false}>Item 1</Item>
+                    <Item>Item 2</Item>
+                    <Item>Item 3</Item>
+                    <Item>Item 4</Item>
+                    <Item>Item 5</Item>
+                    <Item>Item 6</Item>
+                    <Item>Item 7</Item>
+                    <Item>Item 8</Item>
+                </Section>
+);
 class Edit extends React.Component {
     constructor(props){
         super(props);
@@ -123,16 +134,16 @@ class Edit extends React.Component {
                                         onNext={()=>self.setState({editing: !self.state.editing})}/>
                 <TableView style={{flex:1}} editing={this.state.editing}
                        onPress={(event) => alert(JSON.stringify(event))} onChange={(event) => alert("CHANGED:"+JSON.stringify(event))}>
-                <Section canMove={true} canEdit={true}>
-                    <Item canEdit={false}>Item 1</Item>
-                    <Item>Item 2</Item>
-                    <Item>Item 3</Item>
-                    <Item>Item 4</Item>
-                    <Item>Item 5</Item>
-                    <Item>Item 6</Item>
-                    <Item>Item 7</Item>
-                    <Item>Item 8</Item>
-                </Section>
+          <Section canMove={true} canEdit={true}>
+                    <Cell><Text>Item 1</Text></Cell>
+                    <Cell><Text>Item 2</Text></Cell>
+                    <Cell><Text>Item 3</Text></Cell>
+                    <Cell><Text>Item 4</Text></Cell>
+                    <Cell><Text>Item 5</Text></Cell>
+                    <Cell><Text>Item 6</Text></Cell>
+                    <Cell><Text>Item 7</Text></Cell>
+                    <Cell><Text>Item 8</Text></Cell>
+                    </Section>
             </TableView>
                 </View>
         );

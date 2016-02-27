@@ -1,7 +1,8 @@
 'use strict';
 
+var moment = require('moment');
 var React = require('react-native');
-var { AppRegistry, Text, Dimensions, View, TouchableHighlight, TextInput } = React;
+var { Navigator, AppRegistry, StyleSheet, Text, Dimensions, View, TouchableHighlight, TextInput } = React;
 var TableView = require('react-native-tableview');
 var Section = TableView.Section;
 var Item = TableView.Item;
@@ -12,7 +13,8 @@ var Firebase = require('firebase');
 
 class NavBar extends React.Component {
     render(){
-        return <NavigationBar style={{backgroundColor: '#0db0d9'}}
+      console.log("NavBar rendering with props ", this.props);
+        return <NavigationBar style={{backgroundColor: '#0db0d9', marginTop: -64}}
                               titleColor='white'
                               buttonsColor='white'
                               {...this.props} />
@@ -234,8 +236,8 @@ class FirebaseExample extends React.Component {
 class CustomEditableExample extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {data:null,editing:false,text:""};
-        this.reactCellModule = "TableViewExampleCell2";
+        this.state = {data:[],editing:false,text:""};
+        this.reactCellModule = "TableViewExampleCell3";
     }
     onExternalData(data) {
         var self = this;
@@ -302,9 +304,19 @@ class CustomEditableExample extends React.Component {
         var {text} = this.state;
         if (!text) return;
         var self = this;
-
+        var count = Math.floor(Math.random() * 10) + 1
+        var total = this.state.data.length > 0 ? 
+                    this.state.data[this.state.data.length -1].total + count: count;
+        var newData = {
+          label: text,
+          date: Date.now(),
+          pending: 1,
+          offlineCount: 22,
+          count: count,
+          total: total,
+        }
         //Simulate saving data remotely and getting a data-changed callback
-        setTimeout(()=>self.onExternalData(!this.state.data?[text]:[...(this.state.data), text]), 2);
+        setTimeout(()=>self.onExternalData(!this.state.data?[newData]:[newData,...(this.state.data)]), 2);
 
         //clear text & hide keyboard
         this.setState({text:""});
@@ -320,8 +332,12 @@ class CustomEditableExample extends React.Component {
         }
     }
     renderItem(itemData, key, index) {
+      console.log(itemData);
         return (
-            <Item key={key} label={itemData}>
+            <Item key={itemData.date} label={itemData.label} 
+                  date={itemData.date} pending={itemData.pending} 
+                  offlineCount={itemData.offlineCount} 
+                  count={itemData.count} total={itemData.total}>
             </Item>);
     }
     getNavProps() {
@@ -372,6 +388,7 @@ class CustomEditableExample extends React.Component {
         var self = this;
         var items = Object.keys(data).map((key,index)=>self.renderItem(data[key], key, index));
 
+      console.log(items);
         return (
             <View style={{flex:1, marginTop:0}}>
 
@@ -400,7 +417,7 @@ class Edit extends React.Component {
     render(){
         var self = this;
         return (
-            <View style={{flex:1}}>
+            <View style={{flex:1, paddingTop: 0}}>
                 <NavBar {...this.props} nextTitle={this.state.editing ? "Done" : "Edit"}
                                         onNext={()=>self.setState({editing: !self.state.editing})}/>
                 <TableView style={{flex:1}} editing={this.state.editing}
@@ -476,18 +493,18 @@ class Launch extends React.Component {
     }
     render(){
         return (
-            <TableView style={{flex:1}}>
+            <TableView style={{flex:1,}}>
                 <Section label={this.state.sectionLabel}  arrow={true}>
-                    <Item onPress={Actions.example1}>Example with custom cells</Item>
-                    <Item onPress={Actions.example2}>Example with app bundle JSON data</Item>
-                    <Item onPress={Actions.example3}>Example with multiple sections</Item>
-                    <Item onPress={Actions.edit}>Example with editing mode</Item>
-                    <Item onPress={Actions.example4}>Reusable Cell Example 1</Item>
-                    <Item onPress={Actions.example5}>Reusable Custom Cells</Item>
-                    <Item onPress={Actions.example6}>Firebase Example</Item>
-                    <Item onPress={Actions.example7}>Large ListView (scroll memory growth)</Item>
-                    <Item onPress={Actions.example8}>Reusable Large TableView Example</Item>
-                    <Item onPress={Actions.example9}>Custom Editing Example</Item>
+                    <Item key="1" onPress={Actions.example1}>Example with custom cells</Item>
+                    <Item key="2" onPress={Actions.example2}>Example with app bundle JSON data</Item>
+                    <Item key="3" onPress={Actions.example3}>Example with multiple sections</Item>
+                    <Item key="4" onPress={Actions.edit}>Example with editing mode</Item>
+                    <Item key="5" onPress={Actions.example4}>Reusable Cell Example 1</Item>
+                    <Item key="6" onPress={Actions.example5}>Reusable Custom Cells</Item>
+                    <Item key="7" onPress={Actions.example6}>Firebase Example</Item>
+                    <Item key="8" onPress={Actions.example7}>Large ListView (scroll memory growth)</Item>
+                    <Item key="9" onPress={Actions.example8}>Reusable Large TableView Example</Item>
+                    <Item key="10" onPress={Actions.example9}>Custom Editing Example</Item>
                 </Section>
             </TableView>
         );
@@ -497,13 +514,13 @@ class Launch extends React.Component {
 class TableViewExample extends React.Component {
     render(){
         return (
-            <Router>
-                <Schema name="default" navBar={NavBar} sceneConfig={Animations.FlatFloatFromRight}/>
-                <Route name="launch" component={Launch} title="TableView Demo"/>
+            <Router sceneStyle={{paddingTop: 64}}>
+                <Schema name="default" navBar={NavBar} sceneConfig={Animations.FlatFloatFromRight} />
+                <Route name="launch" component={Launch} title="TableView Demo" />
                 <Route name="example1" component={Example1} title="Example 1"/>
                 <Route name="example2" component={Example2} title="Example 2"/>
                 <Route name="example3" component={Example3} title="Example 3"/>
-                <Route name="edit" component={Edit} hideNavBar={true}/>
+                <Route name="edit" component={Edit} hideNavBar={true} />
                 <Route name="example4" component={ReusableCellExample1} title="Reusable Cell Example 1"/>
                 <Route name="example5" component={ReusableCellExample2} title="Reusable Custom Cells"/>
                 <Route name="example6" component={FirebaseExample} title="Firebase Example"/>
@@ -551,6 +568,50 @@ class TableViewExampleCell2 extends React.Component {
         return (<View style={style}><Text>{this.props.data.label}</Text></View>);
     }
 }
+var Debugging = false;
+//Should be pure... setState on top-level component doesn't seem to work
+class TableViewExampleCell3 extends React.Component {
+    render(){
+        var style = {};
+        //cell height is passed from <Item> child of tableview and native code passes it back up to javascript in "app params" for the cell.
+        //This way our component will fill the full native table cell height.
+        if (this.props.data.height !== undefined) {
+            style.height = this.props.data.height;
+        } else {
+            style.flex = 1;
+        }
+        if (this.props.data.backgroundColor !== undefined) {
+            style.backgroundColor = this.props.data.backgroundColor;
+        }
+      console.log(this.props);
+      var date = new Date(this.props.data.date);
+      var xdata = Debugging ? `Pending ${this.props.data.pending}, Offline: ${this.props.data.offlineCount}`: ' ' ;
+      var xdate = Debugging ? moment(date).format("HH:mm:ss.SSS") : ' ' ;
+      return (
+        <View style={style}>
+           <View style={styles.row}>  
+             <View style={[styles.countContainer,{flexDirection: Debugging? 'column' : 'row'}]}>
+               <Text style={styles.badge}> 
+               {this.props.data.total}</Text>
+               <Text style={[styles.count,{lineHeight: Debugging? 14: 17}]}> 
+                {(Debugging? "" :" (") +this.props.data.count +(Debugging?"":")")}</Text> 
+             </View>
+            <View style={styles.messageContainer}>
+               <Text style={styles.message}> {this.props.data.label} </Text>
+               <Text style={styles.message}> {xdata} </Text>
+            </View>
+            <View style={styles.timeContainer}> 
+               <Text style={styles.timestamp}>{ moment(date).fromNow()}</Text>
+               <Text style={styles.timestamp}>{xdate}</Text>
+            </View>
+          </View>
+        <View style={styles.separator} />
+      </View>
+    );
+    }
+  
+  
+}
 
 //Should be pure... setState on top-level component doesn't seem to work
 class DinosaurCellExample extends React.Component {
@@ -589,4 +650,59 @@ class DinosaurCellExample extends React.Component {
 AppRegistry.registerComponent('TableViewExample', () => TableViewExample);
 AppRegistry.registerComponent('TableViewExampleCell', () => TableViewExampleCell);
 AppRegistry.registerComponent('TableViewExampleCell2', () => TableViewExampleCell2);
+AppRegistry.registerComponent('TableViewExampleCell3', () => TableViewExampleCell3);
 AppRegistry.registerComponent('DinosaurCellExample', () => DinosaurCellExample);
+
+var styles = StyleSheet.create({
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    padding: 5,
+    backgroundColor: '#F6F6F6',
+  },
+  separator: {
+    height: 1,
+    backgroundColor: '#CCCCCC',
+  },
+  badge: {
+    flex: .7,
+    fontSize: 16,
+    fontWeight: '500',
+    textAlign: 'right',
+
+  },
+  count: {
+    flex: .3,
+    fontSize: 12,
+    lineHeight: 18,
+    textAlign: 'right',
+
+  },
+  timestamp: {
+    flex: 1,
+    fontSize: 12,
+    textAlign: 'right',
+  },
+  countContainer: {
+    flex: 0,
+    flexDirection: 'row', 
+},
+  messageContainer: {
+    flexDirection: 'column',
+    flex: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingTop: 5,
+  },
+  timeContainer: {
+    flex: 0,
+    paddingRight:12,
+    paddingTop: 5,
+  },
+  message: {
+    flex: 1 ,
+    fontSize: 12,
+    //alignSelf: 'stretch',
+    textAlign: 'center',
+  },
+});
